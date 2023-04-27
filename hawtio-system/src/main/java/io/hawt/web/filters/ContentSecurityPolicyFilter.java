@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import io.hawt.web.ServletHelpers;
 import io.hawt.web.auth.keycloak.KeycloakServlet;
@@ -23,7 +23,6 @@ public class ContentSecurityPolicyFilter extends HttpHeaderFilter {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ContentSecurityPolicyFilter.class);
 
-    private static String POLICY = "";
     private static final String POLICY_TEMPLATE =
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' %s; " +
@@ -31,7 +30,10 @@ public class ContentSecurityPolicyFilter extends HttpHeaderFilter {
         "font-src 'self' data:; " +
         "img-src 'self' data:; " +
         "connect-src 'self' %s; " +
-        "frame-src 'self' %s";
+        "frame-src 'self' %s; " +
+        "frame-ancestors %s";
+
+    private String policy = "";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -41,6 +43,8 @@ public class ContentSecurityPolicyFilter extends HttpHeaderFilter {
         if (System.getProperty(KeycloakServlet.HAWTIO_KEYCLOAK_CLIENT_CONFIG) != null) {
             keycloakConfigFile = System.getProperty(KeycloakServlet.HAWTIO_KEYCLOAK_CLIENT_CONFIG);
         }
+
+        String frameAncestors = isXFrameSameOriginAllowed() ? "'self'" : "'none'";
 
         boolean addedKeycloakUrl = false;
         if (keycloakConfigFile != null && !keycloakConfigFile.trim().equals("")) {
@@ -54,19 +58,19 @@ public class ContentSecurityPolicyFilter extends HttpHeaderFilter {
                 if (uri.getPort() >= 0) {
                     cspSrc += ":" + uri.getPort();
                 }
-                POLICY = String.format(POLICY_TEMPLATE, cspSrc, cspSrc, cspSrc);
+                policy = String.format(POLICY_TEMPLATE, cspSrc, cspSrc, cspSrc, frameAncestors);
                 addedKeycloakUrl = true;
             } catch (IOException e) {
                 LOG.error("Can't read keycloak configuration file", e);
             }
         }
         if (!addedKeycloakUrl) {
-            POLICY = String.format(POLICY_TEMPLATE, "", "", "");
+            policy = String.format(POLICY_TEMPLATE, "", "", "", frameAncestors);
         }
     }
 
     @Override
     protected void addHeaders(HttpServletRequest request, HttpServletResponse response) {
-        response.addHeader("Content-Security-Policy", POLICY);
+        response.addHeader("Content-Security-Policy", policy);
     }
 }

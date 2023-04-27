@@ -1,14 +1,14 @@
 package io.hawt.web.filters;
 
 import java.io.IOException;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import io.hawt.system.ConfigManager;
 import org.slf4j.Logger;
@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 public abstract class HttpHeaderFilter implements Filter {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(HttpHeaderFilter.class);
+
+    public static final String ALLOW_X_FRAME_SAME_ORIGIN = "http.allowXFrameSameOrigin";
+    public static final String HAWTIO_ALLOW_X_FRAME_SAME_ORIGIN = "hawtio." + ALLOW_X_FRAME_SAME_ORIGIN;
 
     private ConfigManager configManager;
 
@@ -48,5 +51,10 @@ public abstract class HttpHeaderFilter implements Filter {
 
     protected String getConfigParameter(String key) {
         return configManager.get(key, null);
+    }
+
+    protected boolean isXFrameSameOriginAllowed() {
+        String allow = getConfigParameter(ALLOW_X_FRAME_SAME_ORIGIN);
+        return Boolean.parseBoolean(allow);
     }
 }
