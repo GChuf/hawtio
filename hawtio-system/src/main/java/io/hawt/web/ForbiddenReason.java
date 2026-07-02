@@ -6,5 +6,6 @@ public enum ForbiddenReason {
     UNSECURED_CORS_REQUEST,
     SESSION_EXPIRED,
     NOT_AUTHORIZED,
+    THROTTLED,
     FORBIDDEN
 }

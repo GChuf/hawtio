@@ -20,6 +20,10 @@ public class AuthenticateResult {
         return new AuthenticateResult(Type.NOT_AUTHORIZED);
     }
 
+    public static AuthenticateResult forbidden() {
+        return new AuthenticateResult(Type.FORBIDDEN);
+    }
+
     public static AuthenticateResult noCredentials() {
         return new AuthenticateResult(Type.NO_CREDENTIALS);
     }

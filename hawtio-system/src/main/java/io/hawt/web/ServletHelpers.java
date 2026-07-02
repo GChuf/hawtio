@@ -41,6 +41,7 @@ public class ServletHelpers {
 
     public static void doForbidden(HttpServletResponse response, ForbiddenReason reason) {
         try {
+            LOG.info("do forbidden");
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setHeader(HEADER_HAWTIO_FORBIDDEN_REASON, reason.name());
             response.setContentLength(0);
@@ -51,11 +52,12 @@ public class ServletHelpers {
     }
 
     public static void doUnauthorized(HttpServletResponse response) {
-        doForbidden(response, ForbiddenReason.NOT_AUTHORIZED);
+        doUnauthorized(response, ForbiddenReason.NOT_AUTHORIZED);
     }
 
     public static void doUnauthorized(HttpServletResponse response, ForbiddenReason reason) {
         try {
+            LOG.info("do unauth");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setHeader(HEADER_HAWTIO_FORBIDDEN_REASON, reason.name());
             response.setContentLength(0);
@@ -79,6 +81,7 @@ public class ServletHelpers {
 
     public static void doTooManyRequests(HttpServletResponse response, long retryAfter) {
         try {
+            LOG.info("do throttled");
             // HTTP status code: 429 Too Many Requests
             // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429
             response.setStatus(429);
